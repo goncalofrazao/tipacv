@@ -1,19 +1,12 @@
 import cv2
 import time
 
-CONTRAST_THRESHOLD = 0.1
-EDGE_THRESHOLD = 8
-RESPONSE_THRESHOLD = 0.2
-FILTERING = False
-
 
 # Load video
 video = cv2.VideoCapture("test.mp4")
 
 # Initialize SIFT detector with increased thresholds
-sift = cv2.SIFT_create(
-    contrastThreshold=CONTRAST_THRESHOLD, edgeThreshold=EDGE_THRESHOLD
-)
+sift = cv2.SIFT_create()
 
 while video.isOpened():
     ret, frame = video.read()
@@ -25,9 +18,6 @@ while video.isOpened():
 
     # Detect keypoints and descriptors
     keypoints, descriptors = sift.detectAndCompute(gray, None)
-
-    if FILTERING:
-        keypoints = [kp for kp in keypoints if kp.response > RESPONSE_THRESHOLD]
 
     # Draw keypoints for visualization
     img = cv2.drawKeypoints(frame, keypoints, None)
