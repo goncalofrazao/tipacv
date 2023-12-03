@@ -10,7 +10,6 @@ config_file = sys.argv[1]
 # parse the config file
 config_dict = parse_config_file(config_file)
 
-print(config_dict.keys())
 video_file = config_dict['videos'][0][0]
 features_file = config_dict['keypoints_out'][0][0]
 
@@ -25,7 +24,8 @@ while cap.isOpened():
 
     frames.append(frame)
 cap.release()
-frames = np.array(frames)[:100]
+
+frames = np.array(frames)[0:-1:30]
 
 features = []
 
@@ -39,8 +39,6 @@ for i in frames:
     coords = np.array([kp.pt for kp in kps])
     data = np.concatenate((coords, des), axis=1)
     features.append(data)
-
-print(features[0].shape)
 
 # Generate .mat file with the descriptors
 sio.savemat(features_file, {'features': features})
