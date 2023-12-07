@@ -62,15 +62,31 @@ class FeatureMatcher:
             matched_coords: NumPy array [frame_pair, frame, match, x/y]; shape (N-1, 2, N, 2)
 
         """
+        homographies_index = []
         matches = []
         for i in range(len(self.features)):
             if i == ref_frame_index:
                 continue
+            homographies_index.append([ref_frame_index, i])
             matches.append(self.match_frames(ref_frame_index, i))
         
-        return np.array(matches)
+        return homographies_index, matches
         
+    def match_consecutive_frames(self):
+        """
+        Match features between consecutive frames
 
+        Return:
+            matched_coords: NumPy array [frame_pair, frame, match, x/y]; shape (N-1, 2, N, 2)
+
+        """
+        homographies_index = []
+        matches = []
+        for i in range(len(self.features) - 1):
+            homographies_index.append([i, i + 1])
+            matches.append(self.match_frames(i, i + 1))
+
+        return homographies_index, matches
 
     def get_feature_coordinates(self, keypoints1, keypoints2, matches):
         """
