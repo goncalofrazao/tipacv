@@ -44,11 +44,6 @@ def homography(destiny, origin):
     # get the last row of V_t
     homography = V_t[-1]
 
-    # #Ax=0 => Eigenvector of A.T@A with smallest eigenvalue
-    # eigenvalues, eigenvectors = np.linalg.eig(a.T @ a)
-    # H = eigenvectors[:, np.argmin(eigenvalues)].reshape(3, 3)
-    # H = H / H[2, 2]
-
     return homography
 
 def read_file(file):
