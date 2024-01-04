@@ -26,7 +26,7 @@ while cap.isOpened():
     frames.append(frame)
 cap.release()
 
-frames = np.array(frames)[::6]
+frames = np.array(frames)[::10]
 
 features = []
 print('Extracting SIFT features...')
@@ -39,16 +39,6 @@ for i in frames:
     kps, des = sift.detectAndCompute(gray, None)
     coords = np.array([kp.pt for kp in kps])
     data = np.concatenate((coords, des), axis=1)
-
-    # indices = np.random.choice(data.shape[0], size=500, replace=False)
-    # data = data[indices]
-
-    # plot only the selected keypoints
-    # for j in selected_data:
-    #     cv2.circle(i, (int(j[0]), int(j[1])), 2, (0, 0, 255), -1)
-    # cv2.imshow('frame', i)
-    # cv2.waitKey(0)
-
     
     features.append(data)
 
