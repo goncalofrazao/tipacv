@@ -13,16 +13,19 @@ class Trajectory:
         self.transforms = []
         self.trajectory = []
         self.point_cloud = []
+        self.masks = []
         if features_pairs:
             self.features_pairs = features_pairs
         elif features_file:
             self.feature_matcher = FeatureMatcher(None, features_file)
             self.features_pairs = self.feature_matcher.match_consecutive_frames()[1]
+            self.features_pairs = self.features_pairs
             print(len(self.features_pairs))
     
     def get_essentials(self):
         for i,j in self.features_pairs:
-            E = cv2.findEssentialMat(i, j, self.K, method=cv2.RANSAC)[0]
+            E, mask = cv2.findEssentialMat(i, j, self.K, method=cv2.RANSAC)
+            self.masks.append(mask)
             self.essentials.append(E)
 
         return self.essentials
@@ -34,8 +37,6 @@ class Trajectory:
             H[:3, :3] = R
             H[:3, 3] = T.reshape(3)
             self.transforms.append(H)
-            print('R:', st.Rotation.from_matrix(R).as_euler('xyz', degrees=True).round(2))
-            print('t:', (-R.T @ T).round(2))
         return self.transforms
     
     def get_trajectory(self):
@@ -53,6 +54,10 @@ class Trajectory:
             cameraMatrix2 = self.K @ self.trajectory[i+1][:3, :]
             points1 = self.features_pairs[i][0]
             points2 = self.features_pairs[i][1]
+            mask = self.masks[i].flatten()
+            points1 = points1[mask == 1]
+            points2 = points2[mask == 1]
+            
             points = cv2.triangulatePoints(cameraMatrix1, cameraMatrix2, points1.T, points2.T)
             points = points[:3] / points[3]
             if i == 0:
@@ -60,6 +65,7 @@ class Trajectory:
             else:
                 self.point_cloud = np.vstack((self.point_cloud, points.T))
                 # print(np.linalg.norm(points.T - self.point_cloud))
+        print(self.point_cloud.shape)
   
     def plot_frame(self, ax, H, axis_length=1.0):
         # Get the origin and the axes directions
@@ -128,12 +134,12 @@ class Trajectory:
         o3d.visualization.draw_geometries([pcd])
 
 def main():
-    data = sio.loadmat('new_data.mat')
-    K = data['K']
-    matches = []
-    for i in range(len(data['frames']) - 1):
-        matches.append((data['frames'][i], data['frames'][i+1]))
-    traj = Trajectory(K, features_pairs=matches)
+    # data = sio.loadmat('new_data.mat')
+    # K = data['K']
+    # matches = []
+    # for i in range(len(data['frames']) - 1):
+    #     matches.append((data['frames'][i], data['frames'][i+1]))
+    # traj = Trajectory(K, features_pairs=matches)
     
     # K = np.array([[1007.4921, 0, 622.32689], # left
     #                 [0, 1001.9244, 481.29046],
@@ -141,10 +147,10 @@ def main():
     # K = np.array([[519.4039, 0, 656.7379], # back
     #                 [0, 518.0534, 451.5029],
     #                 [0, 0, 1]])
-    # K = np.array([[1600.7216, 0, 601.50012], # front
-    #               [0, 1628.0265, 516.2108],
-    #               [0, 0, 1]])
-    # traj = Trajectory(K, features_file='mats/front_tecas_10_unlimited.mat')
+    K = np.array([[1600.7216, 0, 601.50012], # front
+                  [0, 1628.0265, 516.2108],
+                  [0, 0, 1]])
+    traj = Trajectory(K, features_file='mats/front_tecas_10_unlimited.mat')
     traj.get_essentials()
     traj.get_transformations()
     traj.get_trajectory()
