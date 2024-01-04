@@ -103,7 +103,7 @@ class Trajectory:
         # ax.set_zlim([-5, 5])
 
         # Show the plot
-        plt.savefig("frames.png")
+        plt.savefig("world.png")
 
     def plot_trajectory(self):
         # plot 3d points
