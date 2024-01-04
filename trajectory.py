@@ -5,6 +5,7 @@ import open3d as o3d
 import matplotlib.pyplot as plt
 from feature_matching import FeatureMatcher
 import scipy.spatial.transform as st
+import sys
 
 
 class Trajectory:
@@ -103,7 +104,8 @@ class Trajectory:
         # ax.set_zlim([-5, 5])
 
         # Show the plot
-        plt.savefig("world.png")
+        plt.savefig("point_cloud.png")
+        sio.savemat("point_cloud.mat", {"point_cloud": self.point_cloud})
 
     def plot_trajectory(self):
         # plot 3d points
@@ -129,6 +131,7 @@ class Trajectory:
         # ax.set_zlim3d(-5, 5)
         # plt.show()
         plt.savefig("trajectory.png")
+        sio.savemat("trajectory.mat", {"trajectory": self.trajectory})
 
     def open3d_plot_pc(self):
         pcd = o3d.geometry.PointCloud()
@@ -155,7 +158,7 @@ def main():
     K = np.array(
         [[1600.7216, 0, 601.50012], [0, 1628.0265, 516.2108], [0, 0, 1]]  # front
     )
-    traj = Trajectory(K, features_file="mats/front_tecas_480p.mat")
+    traj = Trajectory(K, features_file=sys.argv[1])
     traj.get_essentials()
     traj.get_transformations()
     traj.get_trajectory()
