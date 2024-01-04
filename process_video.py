@@ -13,6 +13,7 @@ config_dict = parse_config_file(config_file)
 video_file = config_dict['videos'][0][0]
 features_file = config_dict['keypoints_out'][0][0]
 
+print('Loading video from', video_file)
 # Load the video
 cap = cv2.VideoCapture(video_file)
 frames = []
@@ -25,7 +26,7 @@ while cap.isOpened():
     frames.append(frame)
 cap.release()
 
-# frames = np.array(frames)[0:-1:30]
+frames = np.array(frames)[::6]
 
 features = []
 print('Extracting SIFT features...')
@@ -39,8 +40,8 @@ for i in frames:
     coords = np.array([kp.pt for kp in kps])
     data = np.concatenate((coords, des), axis=1)
 
-    indices = np.random.choice(data.shape[0], size=200, replace=False)
-    selected_data = data[indices]
+    # indices = np.random.choice(data.shape[0], size=500, replace=False)
+    # data = data[indices]
 
     # plot only the selected keypoints
     # for j in selected_data:
@@ -48,7 +49,8 @@ for i in frames:
     # cv2.imshow('frame', i)
     # cv2.waitKey(0)
 
-    features.append(selected_data)
+    
+    features.append(data)
 
 # Generate .mat file with the descriptors
 sio.savemat(features_file, {'features': features})

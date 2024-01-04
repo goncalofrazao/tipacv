@@ -23,6 +23,7 @@ class FeatureMatcher:
         """
         data = sio.loadmat(features_path)
         return [data["features"][0][i] for i in range(len(data["features"][0]))]
+        # return data["features"]
 
     def match_frames(self, frame_index1, frame_index2):
         """
