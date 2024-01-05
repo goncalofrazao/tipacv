@@ -40,7 +40,9 @@ class Homography:
 
         self.fm = FeatureMatcher(self.video_file, self.feature_file)
         self.indexes, self.matches = self.fm.match_consecutive_frames()
+        # self.fm.draw_matches(0, 10, self.matches[0], points_to_draw=self.matches[0].shape[1])
         self.matches = self.ransac(self.matches, threshold=6, n_iterations=220, n_points=4)
+        # self.fm.draw_matches(0, 10, self.matches[0], points_to_draw=self.matches[0].shape[1])
         self.homographies = self.compute_homographies(self.matches)
 
         if mode == 'all':
@@ -211,24 +213,24 @@ def main():
     homo = Homography(sys.argv[1])
     
 
-    # FRAMES = 10
-    # for i,(a,b), (c,d) in zip(range(len(homo.homographies)), homo.indexes, homo.indexes2):
-    #     # print("Homography", i,"(", a - c, ",", b - d, ")", ":", homo.homographies[i].round(2))
-    #     print(a, b, c, d)
-    #     # fm.draw_matches(a * FRAMES, b * FRAMES, matches[i], points_to_draw=matches[i].shape[1])
-    #     # homo.fm.draw_matches(a * FRAMES, b * FRAMES, homo.matches[i])
+    FRAMES = 10
+    for i,(a,b), (c,d) in zip(range(len(homo.homographies)), homo.indexes, homo.indexes2):
+        # print("Homography", i,"(", a - c, ",", b - d, ")", ":", homo.homographies[i].round(2))
+        print(a, b, c, d)
+        # fm.draw_matches(a * FRAMES, b * FRAMES, matches[i], points_to_draw=matches[i].shape[1])
+        # homo.fm.draw_matches(a * FRAMES, b * FRAMES, homo.matches[i])
         
-    #     homo.fm.video.set(cv2.CAP_PROP_POS_FRAMES, a * FRAMES)
-    #     _, im1 = homo.fm.video.read()
-    #     homo.fm.video.set(cv2.CAP_PROP_POS_FRAMES, b * FRAMES)
-    #     _, im2 = homo.fm.video.read()
+        homo.fm.video.set(cv2.CAP_PROP_POS_FRAMES, a * FRAMES)
+        _, im1 = homo.fm.video.read()
+        homo.fm.video.set(cv2.CAP_PROP_POS_FRAMES, b * FRAMES)
+        _, im2 = homo.fm.video.read()
         
-    #     im2_t = cv2.warpPerspective(im1, homo.homographies[i].reshape(3,3), (im1.shape[1], im1.shape[0]))
-    #     im2_superimposed = cv2.addWeighted(im2, 0.5, im2_t, 0.5, 0)
+        im2_t = cv2.warpPerspective(im1, homo.homographies[i].reshape(3,3), (im1.shape[1], im1.shape[0]))
+        im2_superimposed = cv2.addWeighted(im2, 0.5, im2_t, 0.5, 0)
         
-    #     cv2.imshow("direct", im2_superimposed)
-    #     cv2.waitKey(0)
-    #     cv2.destroyAllWindows()
+        cv2.imshow("direct", im2_superimposed)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
